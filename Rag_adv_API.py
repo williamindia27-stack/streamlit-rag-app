@@ -131,4 +131,4 @@ if st.sidebar.button("Show last sources") and len(st.session_state.chat_history)
     for i, node in enumerate(results, start=1):
         st.sidebar.write(f"**Result {i}:**")
         st.sidebar.write(node.text)
-        st.sidebar.write("---")
+        st.sidebar.write("---") 
