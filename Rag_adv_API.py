@@ -18,9 +18,10 @@ from llama_index.core import PromptTemplate
 
 def get_llm():
     return Groq(
-        model="llama3-8b-8192",
+        model="llama3-70b-8192",  # changed from llama3-8b-8192
         api_key=st.secrets["GROQ_API_KEY"]
     )
+    
 
 # -----------------------------
 # CUSTOM PROMPT
