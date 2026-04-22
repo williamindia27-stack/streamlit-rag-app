@@ -44,7 +44,7 @@ CUSTOM_PROMPT = PromptTemplate(
 # -----------------------------
 
 @st.cache_resource(show_spinner="Loading documents...")
-def load_index(_version=2):  # bump this number each time you want to force rebuild
+def load_index(_version=3):
     Settings.llm = get_llm()
 
     Settings.embed_model = HuggingFaceEmbedding(
@@ -71,7 +71,7 @@ def load_index(_version=2):  # bump this number each time you want to force rebu
         return None
 
     documents = SimpleDirectoryReader(input_files=pdf_files).load_data()
-    parser = SentenceSplitter(chunk_size=1000, chunk_overlap=100)
+    parser = SentenceSplitter(chunk_size=600, chunk_overlap=50)
     nodes = parser.get_nodes_from_documents(documents)
     index = VectorStoreIndex(nodes)
     return index
@@ -83,7 +83,7 @@ Settings.llm = get_llm()
 
 if index is not None:
     query_engine = index.as_query_engine(
-        similarity_top_k=5,
+        similarity_top_k=3,
         llm=get_llm(),
         text_qa_template=CUSTOM_PROMPT
     )
@@ -108,14 +108,13 @@ if user_input and query_engine:
 
     with st.spinner("Thinking..."):
         response = query_engine.query(user_input)
-        # No 500 char limit — let the full answer through
         answer = str(response).strip()
 
     st.session_state.chat_history.append(("assistant", answer))
 
 for role, message in st.session_state.chat_history:
     with st.chat_message(role):
-        st.markdown(message)  # markdown renders spacing and bold nicely
+        st.markdown(message)
 
 
 # -----------------------------
@@ -126,7 +125,7 @@ st.sidebar.title("🔎 Debug / Sources")
 
 if st.sidebar.button("Show last sources") and len(st.session_state.chat_history) >= 2:
     last_query = st.session_state.chat_history[-2][1]
-    retriever = index.as_retriever(similarity_top_k=5)
+    retriever = index.as_retriever(similarity_top_k=3)
     results = retriever.retrieve(last_query)
 
     for i, node in enumerate(results, start=1):
